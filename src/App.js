@@ -25,7 +25,7 @@ function App() {
   }
 
   // fetch data from your own key on unsplash api
-  const key = 'wSd52RMW3COYZoc03G0sZXIQ9WACIUsLGlKC4VRToHs';
+  const key = 'key';
   async function fetchImg() {
     let url;
     if(!searchMsg) {   // when page open first time
