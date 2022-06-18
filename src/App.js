@@ -5,7 +5,7 @@ function App() {
   const [inputMsg, setInputMsg] = useState('');    // message in input field
   const [searchMsg, setSearchMsg] = useState('');   
   const [imageData, setImageData] = useState([]);
-
+  const [pageNumber, setPageNumber] = useState(1);   
   const [imageElement, setImageElement] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,23 +16,33 @@ function App() {
   function onSearchSubmit(e) {
     e.preventDefault();
     setSearchMsg(inputMsg);
-  }
-
-  const key = 'wSd52RMW3COYZoc03G0sZXIQ9WACIUsLGlKC4VRToHs';
-  const pageNumber = 1;
-  async function fetchImg() {
-    let url;
-    if(!searchMsg) {
-      url = `https://api.unsplash.com/photos/?client_id=${key}&page=${pageNumber}`;
+    if(searchMsg === inputMsg) {   // if we search the same message, we do nothing 
+      return;   
     }
     else {
+      setImageData([]);   // set photo to zero because we don't want to show the old photos when seach new one
+    }
+  }
+
+  // fetch data from your own key on unsplash api
+  const key = 'wSd52RMW3COYZoc03G0sZXIQ9WACIUsLGlKC4VRToHs';
+  async function fetchImg() {
+    let url;
+    if(!searchMsg) {   // when page open first time
+      url = `https://api.unsplash.com/photos/?client_id=${key}&page=${pageNumber}`;
+    }
+    else {   // when searh something
       url = `https://api.unsplash.com/search/photos/?client_id=${key}&page=${pageNumber}&query=${searchMsg}`;
     }
     try {
-      console.log(url);    // => url
       const result = await fetch(url);
       const data = await result.json();
-      !searchMsg ? setImageData(data) : setImageData(data.results);
+      if(!searchMsg) {
+        setImageData((prev) => [...prev, ...data]);
+      }
+      else if(searchMsg) {
+        setImageData((prev) => [...prev, ...data.results]);
+      }
     }
     catch(error) {
       console.log(error);
@@ -40,54 +50,39 @@ function App() {
   }
   useEffect(() => {
     fetchImg();
-  }, [searchMsg]);
+  // if we press 'search' on the different word => we get new photo
+  // if we scroll down => we get more photos 
+  }, [searchMsg, pageNumber]);   
 
-
-  
-
-
-  // get small photo
+  // let elements display on the screen 
   useEffect(() => {
-    console.log('image data :', imageData);
-    setImageElement(imageData.map((dataArr) => {
-      return <img src={dataArr.urls.small} />
+    setImageElement(imageData.map((dataArr, index) => {
+      return <img key={index} src={dataArr.urls.small} />
     }));
+    setIsLoading(false);
   }, [imageData]);
 
-
-  // const letShow = imageElement.map((div) => {
-  //   return div;
-  // })
-
-  // useEffect(() => {
-  //   if(!searchMsg) {
-  //     console.log(imageData)
-  //   }
-  //   else if(searchMsg) {
-  //     console.log('else :', imageData.results)
-  //   }
-  // }, [imageData]);
-
-
-
-
-
+  // this is what we do when scrolling
+  window.addEventListener('scroll', () => {
+    const {scrollTop, clientHeight, scrollHeight} = document.documentElement;
+    if(scrollTop + clientHeight >= scrollHeight - 5) {
+      setIsLoading(true);
+      setPageNumber((prevPage) => prevPage + 1);   // go to the next page when scroll to bottom of the scene
+    }
+  });
 
   return (
     <div className="App">
-
       <section className='search-header'>
         <form onSubmit={onSearchSubmit}>
           <input type='text' value={inputMsg} className='search-image-input' onChange={onInputChange} />
           <button type='submit' >Search</button>
         </form>
       </section>
-
       <section className='image-container'>
         {imageElement}
-        {/* {isLoading && (<div>Loding...</div>)} */}
+        {isLoading && (<h3>Loding...</h3>)}
       </section>
-
     </div>
   );
 }
