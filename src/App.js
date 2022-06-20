@@ -25,7 +25,7 @@ function App() {
   }
 
   // fetch data from your own key on unsplash api
-  const key = 'key';
+  const key = 'ubdViBLOHzGHMrS3grYG4LN6eZNnWghM5_96s7iRUUQ';
   async function fetchImg() {
     let url;
     if(!searchMsg) {   // when page open first time
@@ -57,7 +57,7 @@ function App() {
   // let elements display on the screen 
   useEffect(() => {
     setImageElement(imageData.map((dataArr, index) => {
-      return <img key={index} src={dataArr.urls.small} />
+      return <img className='image-item' key={index} src={dataArr.urls.small} />
     }));
     setIsLoading(false);
   }, [imageData]);
@@ -75,14 +75,15 @@ function App() {
     <div className="App">
       <section className='search-header'>
         <form onSubmit={onSearchSubmit}>
-          <input type='text' value={inputMsg} className='search-image-input' onChange={onInputChange} />
-          <button type='submit' >Search</button>
+          <span>sPhoto</span>
+          <input type='text' placeholder='... search image here' value={inputMsg} className='search-image-input' onChange={onInputChange} />
+          <button className='search' type='submit' >Search</button>
         </form>
       </section>
       <section className='image-container'>
         {imageElement}
-        {isLoading && (<h3>Loding...</h3>)}
       </section>
+      {isLoading && (<h3>Loding...</h3>)}
     </div>
   );
 }
